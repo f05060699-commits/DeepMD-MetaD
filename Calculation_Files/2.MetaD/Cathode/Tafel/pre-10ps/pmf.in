@@ -1,0 +1,23 @@
+ colvar {
+  name d
+  width 0.05
+  hardLowerBoundary yes
+  lowerBoundary  0.5
+  upperBoundary  2.8
+  distance {
+        group1 {atomNumbers 337 }
+          group2 {atomNumbers  338 }
+		  }
+  outputTotalForce on
+  outputAppliedForce on
+}
+ 
+metadynamics {
+  colvars d
+  hillWidth  1.0
+  hillWeight 0.1
+  newHillFrequency 300  
+  biasTemperature 500     # Well-Tempered模式
+  writeTISamples on
+  writeTIPMF on
+}    

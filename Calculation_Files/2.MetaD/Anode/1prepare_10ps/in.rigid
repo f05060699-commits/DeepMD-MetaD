@@ -1,0 +1,40 @@
+# system
+units        metal
+dimension    3
+atom_style   atomic
+boundary     p p f
+
+# 设置原子映射
+atom_modify map array
+
+# initial stucture
+read_data POSCAR.lmp
+mass      1 55.845
+mass      2 15.999
+mass      3 1.008
+mass      4  35.450
+
+# potential
+pair_style deepmd graph-compress.pb
+pair_coeff * *
+
+# 固定原子受力、速度为 0
+group fixed id  1   2   3   8   9  10  15  16  17  22  23  24  29  30  31  36  37  38  43  44  45  50  51  52  57  58  59  64  65  66  71  72  73  78  79  80  85  86  87  92  93  94  99 100 101 106 107 108 113 114 115 120 121 122 127 128 129 134 135 136 141 142 143 148 149 150 155 156 157 162 163 164
+group mobile subtract all fixed
+fix freeze_fixed fixed setforce 0.0 0.0 0.0
+velocity fixed set 0 0 0
+
+# 在z=26.5处添加硬性反射墙
+fix wall1 mobile wall/reflect zhi 26.5
+
+# 计算mobile组的温度
+compute mTemp mobile temp   
+thermo 50
+thermo_style custom step temp c_mTemp pe ke etotal press
+velocity mobile  create 298.15 12345 mom yes rot yes
+
+fix ensemble mobile  nvt temp 298.15 298.15 1.0
+dump trace all custom 1 md.lammpstrj id type x y z
+timestep 0.0005
+run 20000
+write_data final.data
